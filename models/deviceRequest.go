@@ -59,7 +59,7 @@ type DeviceRequestParameter struct {
 }
 type OtherDeviceRequest DeviceRequest
 
-// MarshalJSON marshals the given DeviceRequest as JSON into a byte slice
+// MarshalJSON marshals the given DeviceRequest as JSON into a byte slice.
 func (r DeviceRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherDeviceRequest

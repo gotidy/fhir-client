@@ -92,7 +92,7 @@ type QuestionnaireItemInitial struct {
 }
 type OtherQuestionnaire Questionnaire
 
-// MarshalJSON marshals the given Questionnaire as JSON into a byte slice
+// MarshalJSON marshals the given Questionnaire as JSON into a byte slice.
 func (r Questionnaire) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherQuestionnaire

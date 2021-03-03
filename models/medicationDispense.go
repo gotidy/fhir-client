@@ -69,7 +69,7 @@ type MedicationDispenseSubstitution struct {
 }
 type OtherMedicationDispense MedicationDispense
 
-// MarshalJSON marshals the given MedicationDispense as JSON into a byte slice
+// MarshalJSON marshals the given MedicationDispense as JSON into a byte slice.
 func (r MedicationDispense) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherMedicationDispense

@@ -43,7 +43,7 @@ type PaymentNotice struct {
 }
 type OtherPaymentNotice PaymentNotice
 
-// MarshalJSON marshals the given PaymentNotice as JSON into a byte slice
+// MarshalJSON marshals the given PaymentNotice as JSON into a byte slice.
 func (r PaymentNotice) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherPaymentNotice

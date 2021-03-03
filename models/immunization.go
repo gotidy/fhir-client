@@ -90,7 +90,7 @@ type ImmunizationProtocolApplied struct {
 }
 type OtherImmunization Immunization
 
-// MarshalJSON marshals the given Immunization as JSON into a byte slice
+// MarshalJSON marshals the given Immunization as JSON into a byte slice.
 func (r Immunization) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherImmunization

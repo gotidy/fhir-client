@@ -141,7 +141,7 @@ type ImplementationGuideManifestPage struct {
 }
 type OtherImplementationGuide ImplementationGuide
 
-// MarshalJSON marshals the given ImplementationGuide as JSON into a byte slice
+// MarshalJSON marshals the given ImplementationGuide as JSON into a byte slice.
 func (r ImplementationGuide) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherImplementationGuide

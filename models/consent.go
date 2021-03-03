@@ -88,7 +88,7 @@ type ConsentProvisionData struct {
 }
 type OtherConsent Consent
 
-// MarshalJSON marshals the given Consent as JSON into a byte slice
+// MarshalJSON marshals the given Consent as JSON into a byte slice.
 func (r Consent) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherConsent

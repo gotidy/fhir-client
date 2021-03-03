@@ -307,7 +307,7 @@ type ExplanationOfBenefitBenefitBalanceFinancial struct {
 }
 type OtherExplanationOfBenefit ExplanationOfBenefit
 
-// MarshalJSON marshals the given ExplanationOfBenefit as JSON into a byte slice
+// MarshalJSON marshals the given ExplanationOfBenefit as JSON into a byte slice.
 func (r ExplanationOfBenefit) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherExplanationOfBenefit

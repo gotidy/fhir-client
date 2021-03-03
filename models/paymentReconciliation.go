@@ -68,7 +68,7 @@ type PaymentReconciliationProcessNote struct {
 }
 type OtherPaymentReconciliation PaymentReconciliation
 
-// MarshalJSON marshals the given PaymentReconciliation as JSON into a byte slice
+// MarshalJSON marshals the given PaymentReconciliation as JSON into a byte slice.
 func (r PaymentReconciliation) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherPaymentReconciliation

@@ -96,7 +96,7 @@ type MedicinalProductSpecialDesignation struct {
 }
 type OtherMedicinalProduct MedicinalProduct
 
-// MarshalJSON marshals the given MedicinalProduct as JSON into a byte slice
+// MarshalJSON marshals the given MedicinalProduct as JSON into a byte slice.
 func (r MedicinalProduct) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherMedicinalProduct

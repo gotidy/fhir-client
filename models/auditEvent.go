@@ -93,7 +93,7 @@ type AuditEventEntityDetail struct {
 }
 type OtherAuditEvent AuditEvent
 
-// MarshalJSON marshals the given AuditEvent as JSON into a byte slice
+// MarshalJSON marshals the given AuditEvent as JSON into a byte slice.
 func (r AuditEvent) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherAuditEvent

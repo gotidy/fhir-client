@@ -39,7 +39,7 @@ type EnrollmentResponse struct {
 }
 type OtherEnrollmentResponse EnrollmentResponse
 
-// MarshalJSON marshals the given EnrollmentResponse as JSON into a byte slice
+// MarshalJSON marshals the given EnrollmentResponse as JSON into a byte slice.
 func (r EnrollmentResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherEnrollmentResponse

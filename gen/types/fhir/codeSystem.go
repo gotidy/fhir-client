@@ -100,7 +100,7 @@ type CodeSystemConceptProperty struct {
 }
 type OtherCodeSystem CodeSystem
 
-// MarshalJSON marshals the given CodeSystem as JSON into a byte slice
+// MarshalJSON marshals the given CodeSystem as JSON into a byte slice.
 func (r CodeSystem) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherCodeSystem

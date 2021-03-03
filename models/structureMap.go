@@ -129,7 +129,7 @@ type StructureMapGroupRuleDependent struct {
 }
 type OtherStructureMap StructureMap
 
-// MarshalJSON marshals the given StructureMap as JSON into a byte slice
+// MarshalJSON marshals the given StructureMap as JSON into a byte slice.
 func (r StructureMap) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherStructureMap

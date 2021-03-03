@@ -50,7 +50,7 @@ type OrganizationContact struct {
 }
 type OtherOrganization Organization
 
-// MarshalJSON marshals the given Organization as JSON into a byte slice
+// MarshalJSON marshals the given Organization as JSON into a byte slice.
 func (r Organization) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherOrganization

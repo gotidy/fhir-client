@@ -65,7 +65,7 @@ type ClinicalImpressionFinding struct {
 }
 type OtherClinicalImpression ClinicalImpression
 
-// MarshalJSON marshals the given ClinicalImpression as JSON into a byte slice
+// MarshalJSON marshals the given ClinicalImpression as JSON into a byte slice.
 func (r ClinicalImpression) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherClinicalImpression

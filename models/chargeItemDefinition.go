@@ -78,7 +78,7 @@ type ChargeItemDefinitionPropertyGroupPriceComponent struct {
 }
 type OtherChargeItemDefinition ChargeItemDefinition
 
-// MarshalJSON marshals the given ChargeItemDefinition as JSON into a byte slice
+// MarshalJSON marshals the given ChargeItemDefinition as JSON into a byte slice.
 func (r ChargeItemDefinition) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherChargeItemDefinition

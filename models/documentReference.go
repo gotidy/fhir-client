@@ -73,7 +73,7 @@ type DocumentReferenceContext struct {
 }
 type OtherDocumentReference DocumentReference
 
-// MarshalJSON marshals the given DocumentReference as JSON into a byte slice
+// MarshalJSON marshals the given DocumentReference as JSON into a byte slice.
 func (r DocumentReference) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherDocumentReference

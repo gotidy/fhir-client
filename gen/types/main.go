@@ -14,6 +14,15 @@
 
 package main
 
+import (
+	"fmt"
+	"os"
+)
+
 func main() {
+	fmt.Println("Fhir generator.")
+	if wd, err := os.Getwd(); err == nil {
+		fmt.Println("Current dir: " + wd)
+	}
 	Run()
 }

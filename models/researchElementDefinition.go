@@ -77,7 +77,7 @@ type ResearchElementDefinitionCharacteristic struct {
 }
 type OtherResearchElementDefinition ResearchElementDefinition
 
-// MarshalJSON marshals the given ResearchElementDefinition as JSON into a byte slice
+// MarshalJSON marshals the given ResearchElementDefinition as JSON into a byte slice.
 func (r ResearchElementDefinition) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherResearchElementDefinition

@@ -97,7 +97,7 @@ type SubstanceSourceMaterialPartDescription struct {
 }
 type OtherSubstanceSourceMaterial SubstanceSourceMaterial
 
-// MarshalJSON marshals the given SubstanceSourceMaterial as JSON into a byte slice
+// MarshalJSON marshals the given SubstanceSourceMaterial as JSON into a byte slice.
 func (r SubstanceSourceMaterial) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherSubstanceSourceMaterial

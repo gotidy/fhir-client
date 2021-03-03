@@ -72,7 +72,7 @@ type MedicinalProductPharmaceuticalRouteOfAdministrationTargetSpeciesWithdrawalP
 }
 type OtherMedicinalProductPharmaceutical MedicinalProductPharmaceutical
 
-// MarshalJSON marshals the given MedicinalProductPharmaceutical as JSON into a byte slice
+// MarshalJSON marshals the given MedicinalProductPharmaceutical as JSON into a byte slice.
 func (r MedicinalProductPharmaceutical) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherMedicinalProductPharmaceutical

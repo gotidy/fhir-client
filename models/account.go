@@ -57,7 +57,7 @@ type AccountGuarantor struct {
 }
 type OtherAccount Account
 
-// MarshalJSON marshals the given Account as JSON into a byte slice
+// MarshalJSON marshals the given Account as JSON into a byte slice.
 func (r Account) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherAccount

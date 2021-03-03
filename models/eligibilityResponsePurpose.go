@@ -84,11 +84,11 @@ func (code EligibilityResponsePurpose) Display() string {
 func (code EligibilityResponsePurpose) Definition() string {
 	switch code {
 	case EligibilityResponsePurposeAuthRequirements:
-		return "The prior authorization requirements for the listed, or discovered if specified, converages for the categories of service and/or specifed biling codes are requested."
+		return "The prior authorization requirements for the listed, or discovered if specified, converages for the categories of service and/or specified biling codes are requested."
 	case EligibilityResponsePurposeBenefits:
 		return "The plan benefits and optionally benefits consumed  for the listed, or discovered if specified, converages are requested."
 	case EligibilityResponsePurposeDiscovery:
-		return "The insurer is requested to report on any coverages which they are aware of in addition to any specifed."
+		return "The insurer is requested to report on any coverages which they are aware of in addition to any specified."
 	case EligibilityResponsePurposeValidation:
 		return "A check that the specified coverages are in-force is requested."
 	}

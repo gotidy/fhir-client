@@ -42,7 +42,7 @@ type ImmunizationEvaluation struct {
 }
 type OtherImmunizationEvaluation ImmunizationEvaluation
 
-// MarshalJSON marshals the given ImmunizationEvaluation as JSON into a byte slice
+// MarshalJSON marshals the given ImmunizationEvaluation as JSON into a byte slice.
 func (r ImmunizationEvaluation) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherImmunizationEvaluation

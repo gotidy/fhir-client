@@ -61,7 +61,7 @@ type ConditionEvidence struct {
 }
 type OtherCondition Condition
 
-// MarshalJSON marshals the given Condition as JSON into a byte slice
+// MarshalJSON marshals the given Condition as JSON into a byte slice.
 func (r Condition) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherCondition

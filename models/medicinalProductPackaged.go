@@ -64,7 +64,7 @@ type MedicinalProductPackagedPackageItem struct {
 }
 type OtherMedicinalProductPackaged MedicinalProductPackaged
 
-// MarshalJSON marshals the given MedicinalProductPackaged as JSON into a byte slice
+// MarshalJSON marshals the given MedicinalProductPackaged as JSON into a byte slice.
 func (r MedicinalProductPackaged) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherMedicinalProductPackaged

@@ -58,7 +58,7 @@ type EpisodeOfCareDiagnosis struct {
 }
 type OtherEpisodeOfCare EpisodeOfCare
 
-// MarshalJSON marshals the given EpisodeOfCare as JSON into a byte slice
+// MarshalJSON marshals the given EpisodeOfCare as JSON into a byte slice.
 func (r EpisodeOfCare) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherEpisodeOfCare

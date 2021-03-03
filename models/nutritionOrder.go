@@ -104,7 +104,7 @@ type NutritionOrderEnteralFormulaAdministration struct {
 }
 type OtherNutritionOrder NutritionOrder
 
-// MarshalJSON marshals the given NutritionOrder as JSON into a byte slice
+// MarshalJSON marshals the given NutritionOrder as JSON into a byte slice.
 func (r NutritionOrder) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherNutritionOrder

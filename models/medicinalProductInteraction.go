@@ -43,7 +43,7 @@ type MedicinalProductInteractionInteractant struct {
 }
 type OtherMedicinalProductInteraction MedicinalProductInteraction
 
-// MarshalJSON marshals the given MedicinalProductInteraction as JSON into a byte slice
+// MarshalJSON marshals the given MedicinalProductInteraction as JSON into a byte slice.
 func (r MedicinalProductInteraction) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherMedicinalProductInteraction

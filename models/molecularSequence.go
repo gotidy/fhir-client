@@ -139,7 +139,7 @@ type MolecularSequenceStructureVariantInner struct {
 }
 type OtherMolecularSequence MolecularSequence
 
-// MarshalJSON marshals the given MolecularSequence as JSON into a byte slice
+// MarshalJSON marshals the given MolecularSequence as JSON into a byte slice.
 func (r MolecularSequence) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherMolecularSequence

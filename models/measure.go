@@ -114,7 +114,7 @@ type MeasureSupplementalData struct {
 }
 type OtherMeasure Measure
 
-// MarshalJSON marshals the given Measure as JSON into a byte slice
+// MarshalJSON marshals the given Measure as JSON into a byte slice.
 func (r Measure) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherMeasure

@@ -78,7 +78,7 @@ type HealthcareServiceNotAvailable struct {
 }
 type OtherHealthcareService HealthcareService
 
-// MarshalJSON marshals the given HealthcareService as JSON into a byte slice
+// MarshalJSON marshals the given HealthcareService as JSON into a byte slice.
 func (r HealthcareService) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherHealthcareService

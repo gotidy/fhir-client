@@ -41,7 +41,7 @@ type LinkageItem struct {
 }
 type OtherLinkage Linkage
 
-// MarshalJSON marshals the given Linkage as JSON into a byte slice
+// MarshalJSON marshals the given Linkage as JSON into a byte slice.
 func (r Linkage) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherLinkage

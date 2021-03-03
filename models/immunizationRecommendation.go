@@ -58,7 +58,7 @@ type ImmunizationRecommendationRecommendationDateCriterion struct {
 }
 type OtherImmunizationRecommendation ImmunizationRecommendation
 
-// MarshalJSON marshals the given ImmunizationRecommendation as JSON into a byte slice
+// MarshalJSON marshals the given ImmunizationRecommendation as JSON into a byte slice.
 func (r ImmunizationRecommendation) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherImmunizationRecommendation

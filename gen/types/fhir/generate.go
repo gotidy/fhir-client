@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:generate fhir-models-gen gen-resources .
+////go:generate ./.. -i ./../../../tmp -o .
+////go:generate gofmt -s -l -w *.go
 
 package fhir

@@ -48,7 +48,7 @@ type SubstanceProteinSubunit struct {
 }
 type OtherSubstanceProtein SubstanceProtein
 
-// MarshalJSON marshals the given SubstanceProtein as JSON into a byte slice
+// MarshalJSON marshals the given SubstanceProtein as JSON into a byte slice.
 func (r SubstanceProtein) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherSubstanceProtein

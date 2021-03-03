@@ -39,7 +39,7 @@ type Schedule struct {
 }
 type OtherSchedule Schedule
 
-// MarshalJSON marshals the given Schedule as JSON into a byte slice
+// MarshalJSON marshals the given Schedule as JSON into a byte slice.
 func (r Schedule) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherSchedule

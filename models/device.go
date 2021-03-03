@@ -98,7 +98,7 @@ type DeviceProperty struct {
 }
 type OtherDevice Device
 
-// MarshalJSON marshals the given Device as JSON into a byte slice
+// MarshalJSON marshals the given Device as JSON into a byte slice.
 func (r Device) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherDevice

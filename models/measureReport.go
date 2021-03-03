@@ -90,7 +90,7 @@ type MeasureReportGroupStratifierStratumPopulation struct {
 }
 type OtherMeasureReport MeasureReport
 
-// MarshalJSON marshals the given MeasureReport as JSON into a byte slice
+// MarshalJSON marshals the given MeasureReport as JSON into a byte slice.
 func (r MeasureReport) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherMeasureReport

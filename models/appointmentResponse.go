@@ -39,7 +39,7 @@ type AppointmentResponse struct {
 }
 type OtherAppointmentResponse AppointmentResponse
 
-// MarshalJSON marshals the given AppointmentResponse as JSON into a byte slice
+// MarshalJSON marshals the given AppointmentResponse as JSON into a byte slice.
 func (r AppointmentResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherAppointmentResponse

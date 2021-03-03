@@ -71,7 +71,7 @@ type PatientLink struct {
 }
 type OtherPatient Patient
 
-// MarshalJSON marshals the given Patient as JSON into a byte slice
+// MarshalJSON marshals the given Patient as JSON into a byte slice.
 func (r Patient) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherPatient

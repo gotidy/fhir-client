@@ -68,7 +68,7 @@ type EvidenceVariableCharacteristic struct {
 }
 type OtherEvidenceVariable EvidenceVariable
 
-// MarshalJSON marshals the given EvidenceVariable as JSON into a byte slice
+// MarshalJSON marshals the given EvidenceVariable as JSON into a byte slice.
 func (r EvidenceVariable) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherEvidenceVariable

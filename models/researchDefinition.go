@@ -64,7 +64,7 @@ type ResearchDefinition struct {
 }
 type OtherResearchDefinition ResearchDefinition
 
-// MarshalJSON marshals the given ResearchDefinition as JSON into a byte slice
+// MarshalJSON marshals the given ResearchDefinition as JSON into a byte slice.
 func (r ResearchDefinition) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherResearchDefinition

@@ -38,7 +38,7 @@ func (code BiologicallyDerivedProductStorageScale) MarshalJSON() ([]byte, error)
 func (code *BiologicallyDerivedProductStorageScale) UnmarshalJSON(json []byte) error {
 	s := strings.Trim(string(json), "\"")
 	switch s {
-	case "farenheit":
+	case "fahrenheit":
 		*code = BiologicallyDerivedProductStorageScaleFarenheit
 	case "celsius":
 		*code = BiologicallyDerivedProductStorageScaleCelsius
@@ -55,7 +55,7 @@ func (code BiologicallyDerivedProductStorageScale) String() string {
 func (code BiologicallyDerivedProductStorageScale) Code() string {
 	switch code {
 	case BiologicallyDerivedProductStorageScaleFarenheit:
-		return "farenheit"
+		return "fahrenheit"
 	case BiologicallyDerivedProductStorageScaleCelsius:
 		return "celsius"
 	case BiologicallyDerivedProductStorageScaleKelvin:

@@ -57,7 +57,7 @@ type CommunicationRequestPayload struct {
 }
 type OtherCommunicationRequest CommunicationRequest
 
-// MarshalJSON marshals the given CommunicationRequest as JSON into a byte slice
+// MarshalJSON marshals the given CommunicationRequest as JSON into a byte slice.
 func (r CommunicationRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherCommunicationRequest

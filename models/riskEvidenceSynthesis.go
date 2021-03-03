@@ -107,7 +107,7 @@ type RiskEvidenceSynthesisCertaintyCertaintySubcomponent struct {
 }
 type OtherRiskEvidenceSynthesis RiskEvidenceSynthesis
 
-// MarshalJSON marshals the given RiskEvidenceSynthesis as JSON into a byte slice
+// MarshalJSON marshals the given RiskEvidenceSynthesis as JSON into a byte slice.
 func (r RiskEvidenceSynthesis) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherRiskEvidenceSynthesis

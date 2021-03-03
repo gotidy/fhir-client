@@ -49,7 +49,7 @@ type DeviceMetricCalibration struct {
 }
 type OtherDeviceMetric DeviceMetric
 
-// MarshalJSON marshals the given DeviceMetric as JSON into a byte slice
+// MarshalJSON marshals the given DeviceMetric as JSON into a byte slice.
 func (r DeviceMetric) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherDeviceMetric

@@ -1,2 +1,19 @@
-./tmp/*.json
+.*
+*.exe
+*.exe~
+*.test
+*~
+*.ps1
+*.prof
+*.test
+debug
+__debug__
+
+.settings/
+.idea/
+.vscode/
+
+.tmp/
+tmp/
+
 

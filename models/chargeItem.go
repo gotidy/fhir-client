@@ -62,7 +62,7 @@ type ChargeItemPerformer struct {
 }
 type OtherChargeItem ChargeItem
 
-// MarshalJSON marshals the given ChargeItem as JSON into a byte slice
+// MarshalJSON marshals the given ChargeItem as JSON into a byte slice.
 func (r ChargeItem) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherChargeItem

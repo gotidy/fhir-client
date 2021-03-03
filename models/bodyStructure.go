@@ -39,7 +39,7 @@ type BodyStructure struct {
 }
 type OtherBodyStructure BodyStructure
 
-// MarshalJSON marshals the given BodyStructure as JSON into a byte slice
+// MarshalJSON marshals the given BodyStructure as JSON into a byte slice.
 func (r BodyStructure) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherBodyStructure

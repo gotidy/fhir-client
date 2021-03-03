@@ -39,7 +39,7 @@ type Flag struct {
 }
 type OtherFlag Flag
 
-// MarshalJSON marshals the given Flag as JSON into a byte slice
+// MarshalJSON marshals the given Flag as JSON into a byte slice.
 func (r Flag) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherFlag

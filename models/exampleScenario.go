@@ -124,7 +124,7 @@ type ExampleScenarioProcessStepAlternative struct {
 }
 type OtherExampleScenario ExampleScenario
 
-// MarshalJSON marshals the given ExampleScenario as JSON into a byte slice
+// MarshalJSON marshals the given ExampleScenario as JSON into a byte slice.
 func (r ExampleScenario) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherExampleScenario

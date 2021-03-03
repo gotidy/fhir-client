@@ -86,7 +86,7 @@ type RequestGroupActionRelatedAction struct {
 }
 type OtherRequestGroup RequestGroup
 
-// MarshalJSON marshals the given RequestGroup as JSON into a byte slice
+// MarshalJSON marshals the given RequestGroup as JSON into a byte slice.
 func (r RequestGroup) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherRequestGroup

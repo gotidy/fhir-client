@@ -50,7 +50,7 @@ type DocumentManifestRelated struct {
 }
 type OtherDocumentManifest DocumentManifest
 
-// MarshalJSON marshals the given DocumentManifest as JSON into a byte slice
+// MarshalJSON marshals the given DocumentManifest as JSON into a byte slice.
 func (r DocumentManifest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherDocumentManifest

@@ -65,7 +65,7 @@ type VisionPrescriptionLensSpecificationPrism struct {
 }
 type OtherVisionPrescription VisionPrescription
 
-// MarshalJSON marshals the given VisionPrescription as JSON into a byte slice
+// MarshalJSON marshals the given VisionPrescription as JSON into a byte slice.
 func (r VisionPrescription) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherVisionPrescription

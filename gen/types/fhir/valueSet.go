@@ -122,7 +122,7 @@ type ValueSetExpansionContains struct {
 }
 type OtherValueSet ValueSet
 
-// MarshalJSON marshals the given ValueSet as JSON into a byte slice
+// MarshalJSON marshals the given ValueSet as JSON into a byte slice.
 func (r ValueSet) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherValueSet

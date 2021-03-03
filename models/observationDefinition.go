@@ -66,7 +66,7 @@ type ObservationDefinitionQualifiedInterval struct {
 }
 type OtherObservationDefinition ObservationDefinition
 
-// MarshalJSON marshals the given ObservationDefinition as JSON into a byte slice
+// MarshalJSON marshals the given ObservationDefinition as JSON into a byte slice.
 func (r ObservationDefinition) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherObservationDefinition

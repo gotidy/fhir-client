@@ -38,7 +38,7 @@ type EnrollmentRequest struct {
 }
 type OtherEnrollmentRequest EnrollmentRequest
 
-// MarshalJSON marshals the given EnrollmentRequest as JSON into a byte slice
+// MarshalJSON marshals the given EnrollmentRequest as JSON into a byte slice.
 func (r EnrollmentRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherEnrollmentRequest

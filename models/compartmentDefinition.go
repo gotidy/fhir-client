@@ -53,7 +53,7 @@ type CompartmentDefinitionResource struct {
 }
 type OtherCompartmentDefinition CompartmentDefinition
 
-// MarshalJSON marshals the given CompartmentDefinition as JSON into a byte slice
+// MarshalJSON marshals the given CompartmentDefinition as JSON into a byte slice.
 func (r CompartmentDefinition) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherCompartmentDefinition

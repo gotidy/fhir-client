@@ -43,7 +43,7 @@ type OperationOutcomeIssue struct {
 }
 type OtherOperationOutcome OperationOutcome
 
-// MarshalJSON marshals the given OperationOutcome as JSON into a byte slice
+// MarshalJSON marshals the given OperationOutcome as JSON into a byte slice.
 func (r OperationOutcome) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherOperationOutcome

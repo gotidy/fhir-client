@@ -39,7 +39,7 @@ type ResearchSubject struct {
 }
 type OtherResearchSubject ResearchSubject
 
-// MarshalJSON marshals the given ResearchSubject as JSON into a byte slice
+// MarshalJSON marshals the given ResearchSubject as JSON into a byte slice.
 func (r ResearchSubject) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherResearchSubject

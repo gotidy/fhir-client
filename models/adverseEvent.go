@@ -67,7 +67,7 @@ type AdverseEventSuspectEntityCausality struct {
 }
 type OtherAdverseEvent AdverseEvent
 
-// MarshalJSON marshals the given AdverseEvent as JSON into a byte slice
+// MarshalJSON marshals the given AdverseEvent as JSON into a byte slice.
 func (r AdverseEvent) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherAdverseEvent

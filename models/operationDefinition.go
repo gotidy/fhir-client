@@ -94,7 +94,7 @@ type OperationDefinitionOverload struct {
 }
 type OtherOperationDefinition OperationDefinition
 
-// MarshalJSON marshals the given OperationDefinition as JSON into a byte slice
+// MarshalJSON marshals the given OperationDefinition as JSON into a byte slice.
 func (r OperationDefinition) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherOperationDefinition

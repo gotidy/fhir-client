@@ -58,7 +58,7 @@ type AllergyIntoleranceReaction struct {
 }
 type OtherAllergyIntolerance AllergyIntolerance
 
-// MarshalJSON marshals the given AllergyIntolerance as JSON into a byte slice
+// MarshalJSON marshals the given AllergyIntolerance as JSON into a byte slice.
 func (r AllergyIntolerance) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherAllergyIntolerance

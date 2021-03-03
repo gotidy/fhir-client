@@ -57,7 +57,7 @@ type DetectedIssueMitigation struct {
 }
 type OtherDetectedIssue DetectedIssue
 
-// MarshalJSON marshals the given DetectedIssue as JSON into a byte slice
+// MarshalJSON marshals the given DetectedIssue as JSON into a byte slice.
 func (r DetectedIssue) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		OtherDetectedIssue
