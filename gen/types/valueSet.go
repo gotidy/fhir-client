@@ -1,11 +1,12 @@
-package cmd
+package main
 
 import (
 	"errors"
 	"fmt"
-	"github.com/dave/jennifer/jen"
-	"github.com/samply/golang-fhir-models/fhir-models-gen/fhir"
 	"strings"
+
+	"github.com/dave/jennifer/jen"
+	"github.com/gotidy/fhir-client/gen/types/fhir"
 )
 
 func generateValueSet(resources ResourceMap, valueSet fhir.ValueSet) (*jen.File, error) {

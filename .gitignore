@@ -1,2 +1,2 @@
-/fhir-models/fhir/*.json
-/fhir-models-gen/fhir/*.json
+./tmp/*.json
+

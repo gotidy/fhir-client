@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cmd
+package main
 
 import (
 	"encoding/json"
@@ -25,8 +25,7 @@ import (
 	"unicode"
 
 	"github.com/dave/jennifer/jen"
-	"github.com/samply/golang-fhir-models/fhir-models-gen/fhir"
-	"github.com/spf13/cobra"
+	"github.com/gotidy/fhir-client/gen/types/fhir"
 )
 
 type Resource struct {
@@ -64,153 +63,148 @@ limitations under the License.
 
 var namePattern = regexp.MustCompile("^[A-Z]([A-Za-z0-9_]){0,254}$")
 
-// genResourcesCmd represents the genResources command
-var genResourcesCmd = &cobra.Command{
-	Use:   "gen-resources",
-	Short: "Generates Go structs from FHIR resource structure definitions.",
-	Run: func(cmd *cobra.Command, args []string) {
-		dir := args[0]
+func Run() {
+	config := ParseFlags()
 
-		resources := make(ResourceMap)
-		resources["StructureDefinition"] = make(map[string][]byte)
-		resources["ValueSet"] = make(map[string][]byte)
-		resources["CodeSystem"] = make(map[string][]byte)
+	resources := make(ResourceMap)
+	resources["StructureDefinition"] = make(map[string][]byte)
+	resources["ValueSet"] = make(map[string][]byte)
+	resources["CodeSystem"] = make(map[string][]byte)
 
-		err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(config.Input, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		if !HasSuffix(info.Name(), ".json") {
+			return nil
+		}
+		bytes, err := ioutil.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("Generate Go sources from file: %s\n", path)
+		resource, err := UnmarshalResource(bytes)
+		if err != nil {
+			return err
+		}
+		if resource.ResourceType == "Bundle" {
+			bundle, err := fhir.UnmarshalBundle(bytes)
 			if err != nil {
 				return err
 			}
-			if info.IsDir() {
-				return nil
-			}
-			if !HasSuffix(info.Name(), ".json") {
-				return nil
-			}
-			bytes, err := ioutil.ReadFile(path)
-			if err != nil {
-				return err
-			}
-			fmt.Printf("Generate Go sources from file: %s\n", path)
-			resource, err := UnmarshalResource(bytes)
-			if err != nil {
-				return err
-			}
-			if resource.ResourceType == "Bundle" {
-				bundle, err := fhir.UnmarshalBundle(bytes)
+			for _, entry := range bundle.Entry {
+				entryResource, err := UnmarshalResource(entry.Resource)
 				if err != nil {
 					return err
 				}
-				for _, entry := range bundle.Entry {
-					entryResource, err := UnmarshalResource(entry.Resource)
-					if err != nil {
-						return err
+				switch entryResource.ResourceType {
+				case "StructureDefinition":
+					if entryResource.Name != nil {
+						resources[entryResource.ResourceType][*entryResource.Name] = entry.Resource
 					}
-					switch entryResource.ResourceType {
-					case "StructureDefinition":
-						if entryResource.Name != nil {
-							resources[entryResource.ResourceType][*entryResource.Name] = entry.Resource
-						}
-					case "ValueSet":
-						fallthrough
-					case "CodeSystem":
-						if entryResource.Url != nil {
-							if entryResource.Version != nil {
-								resources[entryResource.ResourceType][*entryResource.Url+"|"+*entryResource.Version] = entry.Resource
-								resources[entryResource.ResourceType][*entryResource.Url] = entry.Resource
-							} else {
-								resources[entryResource.ResourceType][*entryResource.Url] = entry.Resource
-							}
+				case "ValueSet":
+					fallthrough
+				case "CodeSystem":
+					if entryResource.Url != nil {
+						if entryResource.Version != nil {
+							resources[entryResource.ResourceType][*entryResource.Url+"|"+*entryResource.Version] = entry.Resource
+							resources[entryResource.ResourceType][*entryResource.Url] = entry.Resource
+						} else {
+							resources[entryResource.ResourceType][*entryResource.Url] = entry.Resource
 						}
 					}
 				}
 			}
-			switch resource.ResourceType {
-			case "StructureDefinition":
-				if resource.Name != nil {
-					resources[resource.ResourceType][*resource.Name] = bytes
-				}
-			case "ValueSet":
-				fallthrough
-			case "CodeSystem":
-				if resource.Url != nil {
-					if resource.Version != nil {
-						resources[resource.ResourceType][*resource.Url+"|"+*resource.Version] = bytes
-						resources[resource.ResourceType][*resource.Url] = bytes
-					} else {
-						resources[resource.ResourceType][*resource.Url] = bytes
-					}
+		}
+		switch resource.ResourceType {
+		case "StructureDefinition":
+			if resource.Name != nil {
+				resources[resource.ResourceType][*resource.Name] = bytes
+			}
+		case "ValueSet":
+			fallthrough
+		case "CodeSystem":
+			if resource.Url != nil {
+				if resource.Version != nil {
+					resources[resource.ResourceType][*resource.Url+"|"+*resource.Version] = bytes
+					resources[resource.ResourceType][*resource.Url] = bytes
+				} else {
+					resources[resource.ResourceType][*resource.Url] = bytes
 				}
 			}
-			return nil
-		})
+		}
+		return nil
+	})
 
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	requiredTypes := make(map[string]bool, 0)
+	requiredValueSetBindings := make(map[string]bool, 0)
+
+	for _, bytes := range resources["StructureDefinition"] {
+		structureDefinition, err := fhir.UnmarshalStructureDefinition(bytes)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-
-		requiredTypes := make(map[string]bool, 0)
-		requiredValueSetBindings := make(map[string]bool, 0)
-
-		for _, bytes := range resources["StructureDefinition"] {
-			structureDefinition, err := fhir.UnmarshalStructureDefinition(bytes)
+		if (structureDefinition.Kind == fhir.StructureDefinitionKindResource) &&
+			structureDefinition.Name != "Element" &&
+			structureDefinition.Name != "BackboneElement" {
+			goFile, err := generateResourceOrType(resources, requiredTypes, requiredValueSetBindings, structureDefinition)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
-			if (structureDefinition.Kind == fhir.StructureDefinitionKindResource) &&
-				structureDefinition.Name != "Element" &&
-				structureDefinition.Name != "BackboneElement" {
-				goFile, err := generateResourceOrType(resources, requiredTypes, requiredValueSetBindings, structureDefinition)
-				if err != nil {
-					fmt.Println(err)
-					os.Exit(1)
-				}
-				err = goFile.Save(FirstLower(structureDefinition.Name) + ".go")
-				if err != nil {
-					fmt.Println(err)
-					os.Exit(1)
-				}
+			err = goFile.Save(FirstLower(structureDefinition.Name) + ".go")
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
 			}
 		}
+	}
 
-		err = generateTypes(resources, make(map[string]bool, 0), requiredTypes, requiredValueSetBindings)
+	err = generateTypes(resources, make(map[string]bool, 0), requiredTypes, requiredValueSetBindings)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	for url := range requiredValueSetBindings {
+		bytes := resources["ValueSet"][url]
+		if bytes == nil {
+			fmt.Printf("Missing ValueSet `%s`.\n", url)
+			os.Exit(1)
+		}
+		valueSet, err := fhir.UnmarshalValueSet(bytes)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-
-		for url := range requiredValueSetBindings {
-			bytes := resources["ValueSet"][url]
-			if bytes == nil {
-				fmt.Printf("Missing ValueSet `%s`.\n", url)
-				os.Exit(1)
-			}
-			valueSet, err := fhir.UnmarshalValueSet(bytes)
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			if valueSet.Name == nil {
-				fmt.Println("Skip ValueSet without name.")
-				continue
-			}
-			if !namePattern.MatchString(*valueSet.Name) {
-				fmt.Printf("Skip ValueSet with non-conforming name `%s`.\n", *valueSet.Name)
-				continue
-			}
-			goFile, err := generateValueSet(resources, valueSet)
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			err = goFile.Save(FirstLower(*valueSet.Name) + ".go")
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
+		if valueSet.Name == nil {
+			fmt.Println("Skip ValueSet without name.")
+			continue
 		}
-	},
+		if !namePattern.MatchString(*valueSet.Name) {
+			fmt.Printf("Skip ValueSet with non-conforming name `%s`.\n", *valueSet.Name)
+			continue
+		}
+		goFile, err := generateValueSet(resources, valueSet)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		err = goFile.Save(filepath.Join(config.Output, FirstLower(*valueSet.Name)+".go"))
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	}
 }
 
 func FirstLower(s string) string {
@@ -495,8 +489,4 @@ func typeCodeToTypeIdentifier(typeCode string) string {
 	default:
 		return typeCode
 	}
-}
-
-func init() {
-	rootCmd.AddCommand(genResourcesCmd)
 }
