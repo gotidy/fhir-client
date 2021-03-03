@@ -22,6 +22,7 @@ import (
 	"path/filepath"
 	"regexp"
 	. "strings"
+	"time"
 	"unicode"
 
 	"github.com/dave/jennifer/jen"
@@ -63,15 +64,21 @@ limitations under the License.
 
 var namePattern = regexp.MustCompile("^[A-Z]([A-Za-z0-9_]){0,254}$")
 
-func Run() {
-	config := ParseFlags()
+type Generator struct {
+	config Config
+}
 
+func NewGenerator(config Config) *Generator {
+	return &Generator{config}
+}
+
+func (g *Generator) Run() {
 	resources := make(ResourceMap)
 	resources["StructureDefinition"] = make(map[string][]byte)
 	resources["ValueSet"] = make(map[string][]byte)
 	resources["CodeSystem"] = make(map[string][]byte)
 
-	err := filepath.Walk(config.Input, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(g.config.Input, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -156,12 +163,12 @@ func Run() {
 		if (structureDefinition.Kind == fhir.StructureDefinitionKindResource) &&
 			structureDefinition.Name != "Element" &&
 			structureDefinition.Name != "BackboneElement" {
-			goFile, err := generateResourceOrType(resources, requiredTypes, requiredValueSetBindings, structureDefinition)
+			goFile, err := g.generateResourceOrType(resources, requiredTypes, requiredValueSetBindings, structureDefinition)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
-			err = goFile.Save(FirstLower(structureDefinition.Name) + ".go")
+			err = goFile.Save(filepath.Join(g.config.Output, FirstLower(structureDefinition.Name)+".go"))
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
@@ -169,7 +176,7 @@ func Run() {
 		}
 	}
 
-	err = generateTypes(resources, make(map[string]bool, 0), requiredTypes, requiredValueSetBindings)
+	err = g.generateTypes(resources, make(map[string]bool, 0), requiredTypes, requiredValueSetBindings)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -194,12 +201,12 @@ func Run() {
 			fmt.Printf("Skip ValueSet with non-conforming name `%s`.\n", *valueSet.Name)
 			continue
 		}
-		goFile, err := generateValueSet(resources, valueSet)
+		goFile, err := g.generateValueSet(resources, valueSet)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		err = goFile.Save(filepath.Join(config.Output, FirstLower(*valueSet.Name)+".go"))
+		err = goFile.Save(filepath.Join(g.config.Output, FirstLower(*valueSet.Name)+".go"))
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -211,7 +218,7 @@ func FirstLower(s string) string {
 	return ToLower(s[:1]) + s[1:]
 }
 
-func generateTypes(resources ResourceMap, alreadyGeneratedTypes map[string]bool, types map[string]bool, requiredValueSetBindings map[string]bool) error {
+func (g *Generator) generateTypes(resources ResourceMap, alreadyGeneratedTypes map[string]bool, types map[string]bool, requiredValueSetBindings map[string]bool) error {
 	moreRequiredTypes := make(map[string]bool, 0)
 	for name := range types {
 		bytes := resources["StructureDefinition"][name]
@@ -222,11 +229,11 @@ func generateTypes(resources ResourceMap, alreadyGeneratedTypes map[string]bool,
 		if err != nil {
 			return err
 		}
-		goFile, err := generateResourceOrType(resources, moreRequiredTypes, requiredValueSetBindings, structureDefinition)
+		goFile, err := g.generateResourceOrType(resources, moreRequiredTypes, requiredValueSetBindings, structureDefinition)
 		if err != nil {
 			return err
 		}
-		err = goFile.Save(FirstLower(structureDefinition.Name) + ".go")
+		err = goFile.Save(filepath.Join(g.config.Output, FirstLower(structureDefinition.Name)+".go"))
 		if err != nil {
 			return err
 		}
@@ -236,12 +243,12 @@ func generateTypes(resources ResourceMap, alreadyGeneratedTypes map[string]bool,
 		delete(moreRequiredTypes, name)
 	}
 	if len(moreRequiredTypes) > 0 {
-		return generateTypes(resources, alreadyGeneratedTypes, moreRequiredTypes, requiredValueSetBindings)
+		return g.generateTypes(resources, alreadyGeneratedTypes, moreRequiredTypes, requiredValueSetBindings)
 	}
 	return nil
 }
 
-func generateResourceOrType(resources ResourceMap, requiredTypes map[string]bool, requiredValueSetBindings map[string]bool, definition fhir.StructureDefinition) (*jen.File, error) {
+func (g *Generator) generateResourceOrType(resources ResourceMap, requiredTypes map[string]bool, requiredValueSetBindings map[string]bool, definition fhir.StructureDefinition) (*jen.File, error) {
 	elementDefinitions := definition.Snapshot.Element
 	if len(elementDefinitions) == 0 {
 		return nil, fmt.Errorf("missing element definitions in structure definition `%s`", definition.Name)
@@ -249,14 +256,14 @@ func generateResourceOrType(resources ResourceMap, requiredTypes map[string]bool
 
 	fmt.Printf("Generate Go sources for StructureDefinition: %s\n", definition.Name)
 	file := jen.NewFile("fhir")
-	appendLicenseComment(file)
-	appendGeneratorComment(file)
+	g.appendLicenseComment(file)
+	g.appendGeneratorComment(file)
 
 	// generate structs
 	file.Commentf("%s is documented here %s", definition.Name, definition.Url)
 	var err error
 	file.Type().Id(definition.Name).StructFunc(func(rootStruct *jen.Group) {
-		_, err = appendFields(resources, requiredTypes, requiredValueSetBindings, file, rootStruct, definition.Name, elementDefinitions, 1, 1)
+		_, err = g.appendFields(resources, requiredTypes, requiredValueSetBindings, file, rootStruct, definition.Name, elementDefinitions, 1, 1)
 	})
 	if err != nil {
 		return nil, err
@@ -302,17 +309,19 @@ func generateResourceOrType(resources ResourceMap, requiredTypes map[string]bool
 	return file, nil
 }
 
-func appendLicenseComment(file *jen.File) {
+func (g *Generator) appendLicenseComment(file *jen.File) {
 	for _, line := range licenseComment {
 		file.HeaderComment(line)
 	}
 }
 
-func appendGeneratorComment(file *jen.File) {
-	file.Comment("// THIS FILE IS GENERATED BY https://github.com/samply/golang-fhir-models\n// PLEASE DO NOT EDIT BY HAND\n")
+func (g *Generator) appendGeneratorComment(file *jen.File) {
+	file.Comment("// Code generated by go generate; DO NOT EDIT.\n")
+	file.Comment("// This file was generated by robots at")
+	file.Comment("// " + time.Now().UTC().String())
 }
 
-func appendFields(resources ResourceMap, requiredTypes map[string]bool, requiredValueSetBindings map[string]bool, file *jen.File, fields *jen.Group, parentName string, elementDefinitions []fhir.ElementDefinition, start, level int) (int, error) {
+func (g *Generator) appendFields(resources ResourceMap, requiredTypes map[string]bool, requiredValueSetBindings map[string]bool, file *jen.File, fields *jen.Group, parentName string, elementDefinitions []fhir.ElementDefinition, start, level int) (int, error) {
 	//fmt.Printf("appendFields parentName=%s, start=%d, level=%d\n", parentName, start, level)
 	for i := start; i < len(elementDefinitions); i++ {
 		element := elementDefinitions[i]
@@ -320,6 +329,9 @@ func appendFields(resources ResourceMap, requiredTypes map[string]bool, required
 		if len(pathParts) == level+1 {
 			// direct childs
 			name := Title(pathParts[level])
+			if name == "Id" {
+				name = "ID"
+			}
 
 			// support contained resources later
 			if name != "Contained" {
@@ -336,7 +348,7 @@ func appendFields(resources ResourceMap, requiredTypes map[string]bool, required
 
 						typeIdentifier := ""
 						for _, pathPart := range Split((*element.ContentReference)[1:], ".") {
-							typeIdentifier = typeIdentifier + Title(pathPart)
+							typeIdentifier += Title(pathPart)
 						}
 						statement.Id(typeIdentifier).Tag(map[string]string{"json": pathParts[level] + ",omitempty", "bson": pathParts[level] + ",omitempty"})
 					}
@@ -352,7 +364,7 @@ func appendFields(resources ResourceMap, requiredTypes map[string]bool, required
 							statement.Op("*")
 						}
 
-						if url := requiredValueSetBinding(element); url != nil {
+						if url := g.requiredValueSetBinding(element); url != nil {
 							if bytes := resources["ValueSet"][*url]; bytes != nil {
 								valueSet, err := fhir.UnmarshalValueSet(bytes)
 								if err != nil {
@@ -391,7 +403,7 @@ func appendFields(resources ResourceMap, requiredTypes map[string]bool, required
 						}
 
 						var typeIdentifier string
-						if parentName == "Element" && name == "Id" ||
+						if parentName == "Element" && name == "ID" ||
 							parentName == "Extension" && name == "Url" {
 							typeIdentifier = "string"
 						} else {
@@ -403,7 +415,7 @@ func appendFields(resources ResourceMap, requiredTypes map[string]bool, required
 							var err error
 							file.Type().Id(backboneElementName).StructFunc(func(childFields *jen.Group) {
 								//var err error
-								i, err = appendFields(resources, requiredTypes, requiredValueSetBindings, file, childFields, backboneElementName, elementDefinitions, i+1, level+1)
+								i, err = g.appendFields(resources, requiredTypes, requiredValueSetBindings, file, childFields, backboneElementName, elementDefinitions, i+1, level+1)
 							})
 							if err != nil {
 								return 0, err
@@ -432,7 +444,7 @@ func appendFields(resources ResourceMap, requiredTypes map[string]bool, required
 	return 0, nil
 }
 
-func requiredValueSetBinding(elementDefinition fhir.ElementDefinition) *string {
+func (g *Generator) requiredValueSetBinding(elementDefinition fhir.ElementDefinition) *string {
 	if elementDefinition.Binding != nil {
 		binding := *elementDefinition.Binding
 		if binding.Strength == fhir.BindingStrengthRequired {

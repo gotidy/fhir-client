@@ -8,7 +8,8 @@ mod:
 
 ## Format the Code.
 fmt:
-	gofmt -s -l -w $(SRCS)
+	gofmt -s -w $(SRCS)
+	goimports -w .
 
 download: 
 	mkdir -p $(TMP)
@@ -20,13 +21,7 @@ download:
 	curl http://hl7.org/fhir/valueset.profile.json -o $(TMP)/valueset.json 
 
 gen: 
-	# mkdir -p tmp
-	# # wget -O ./tmp/definitions.zip https://www.hl7.org/fhir/definitions.json.zip
-	# curl https://www.hl7.org/fhir/definitions.json.zip --output $(TMP)/definitions.zip
-	# unzip $(TMP)/definitions.zip profiles-resources.json profiles-types.json valuesets.json -d $(TMP)/
-	# rm -rf $(TMP)/definitions.zip
 	go generate ./...
-	# gofmt -s -l -w $(SRCS)
 
 test: mod gen
 	go test ./...	

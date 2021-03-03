@@ -9,7 +9,7 @@ import (
 	"github.com/gotidy/fhir-client/gen/types/fhir"
 )
 
-func generateValueSet(resources ResourceMap, valueSet fhir.ValueSet) (*jen.File, error) {
+func (g *Generator) generateValueSet(resources ResourceMap, valueSet fhir.ValueSet) (*jen.File, error) {
 	if valueSet.Name == nil {
 		return nil, errors.New("ValueSet without name")
 	}
@@ -43,8 +43,8 @@ func generateValueSet(resources ResourceMap, valueSet fhir.ValueSet) (*jen.File,
 
 	fmt.Printf("Generate Go sources for ValueSet: %s\n", *valueSet.Name)
 	file := jen.NewFile("fhir")
-	appendLicenseComment(file)
-	appendGeneratorComment(file)
+	g.appendLicenseComment(file)
+	g.appendGeneratorComment(file)
 
 	// type
 	file.Commentf("%s is documented here %s", *valueSet.Name, *valueSet.Url)
