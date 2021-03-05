@@ -1,0 +1,37 @@
+package fhir
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"strings"
+	"reflect"
+
+	"github.com/gotidy/fhir-client/models"
+)
+
+const (
+{{range .Entities --}}
+	{{.Name}}Resource ResourceType = {{.Name}}
+{{-- end}}
+)
+
+var resources = map[ResourceType] struct {new: func() interface{}, typ: reflect.Type} {
+{{range .Entities --}}
+	{{.Name}}Resource: {new: func() interface{} {return &models.{{.Name}}}, typ: reflect.TypeOf(models.{{.Name}}{})},
+{{-- end}}
+}
+
+// NewResource creates the new resource.
+func NewResource(resource ResourceType) interface{} {
+	return resources[resource].new()
+}
+
+// TypeOf returns the type of resource.
+func TypeOf(resource ResourceType) reflect.Type {
+	return resources[resource].typ
+}
