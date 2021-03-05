@@ -169,11 +169,11 @@ func (c *Client) Create(ctx context.Context, resource ResourceType, params Param
 }
 
 func (c *Client) Update(ctx context.Context, resource ResourceType, params Parameters, body interface{}) (*FhirResponse, error) {
-	return c.RequestWithBody(ctx, http.MethodPatch, string(resource), params, body)
+	return c.RequestWithBody(ctx, http.MethodPut, string(resource), params, body)
 }
 
 func (c *Client) UpdateByID(ctx context.Context, resource ResourceType, id string, params Parameters, body interface{}) (*FhirResponse, error) {
-	return c.RequestWithBody(ctx, http.MethodPatch, Path(string(resource), id), params, body)
+	return c.RequestWithBody(ctx, http.MethodPut, Path(string(resource), id), params, body)
 }
 
 func (c *Client) Patch(ctx context.Context, resource ResourceType, params Parameters, body interface{}) (*FhirResponse, error) {

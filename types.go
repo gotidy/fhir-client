@@ -58,13 +58,13 @@ func NewFhirResponse(resp *http.Response) (*FhirResponse, error) {
 	case "Bundle":
 		var dest models.Bundle
 		if err := json.Unmarshal(fresp.Body, &dest); err != nil {
-			return nil, fmt.Errorf("response parsing: %w", err)
+			return nil, NewUnmarshalError("response parsing", fresp.ResourceType, fresp.Body, err)
 		}
 		fresp.Bundle = &dest
 	case "OperationOutcome":
 		var dest models.OperationOutcome
 		if err := json.Unmarshal(fresp.Body, &dest); err != nil {
-			return nil, fmt.Errorf("response parsing: %w", err)
+			return nil, NewUnmarshalError("response parsing", fresp.ResourceType, fresp.Body, err)
 		}
 		fresp.OperationOutcome = &dest
 	case "":

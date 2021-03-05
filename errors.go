@@ -51,6 +51,40 @@ func (e FhirError) Error() string {
 	}
 }
 
+func AsFhirError(err error) (FhirError, bool) {
+	var e FhirError
+	return e, errors.As(err, &e)
+}
+
+type UnmarshalError struct {
+	Message  string
+	Resource ResourceType
+	Err      error
+	Data     []byte
+}
+
+func NewUnmarshalError(msg string, resource ResourceType, data []byte, err error) UnmarshalError {
+	return UnmarshalError{
+		Message:  msg,
+		Resource: resource,
+		Err:      err,
+		Data:     data,
+	}
+}
+
+func (e UnmarshalError) Error() string {
+	return fmt.Sprintf("%s (%s): %s", e.Message, e.Resource, e.Err)
+}
+
+func (e UnmarshalError) Unwrap() error {
+	return e.Err
+}
+
+func AsUnmarshalError(err error) (UnmarshalError, bool) {
+	var e UnmarshalError
+	return e, errors.As(err, &e)
+}
+
 type NotFoundError struct {
 	ID       string
 	Resource string

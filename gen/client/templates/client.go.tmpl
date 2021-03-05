@@ -18,7 +18,7 @@ func bundleTo{{$entity}}s(bundle *models.Bundle) ([]*models.{{$entity}}, error) 
 	err := EnumBundleResources(bundle, "{{$entity}}", func(resource ResourceData) error {
 		var entity models.{{$entity}}
 		if err := resource.UnmarshalTo(&entity); err != nil {
-			return err
+			return NewUnmarshalError("resource parsing", "{{$entity}}", []byte(resource), err)
 		}
 		entities = append(entities, &entity)
 		return nil
@@ -37,7 +37,7 @@ func fhirRespTo{{$entity}}s(resp *FhirResponse) ([]*models.{{$entity}}, error) {
 	case "{{$entity}}":
 		var entity models.{{$entity}}
 		if err := json.Unmarshal(resp.Body, &entity); err != nil {
-			return nil, err
+			return nil, NewUnmarshalError("resource parsing", resp.ResourceType, resp.Body, err)
 		}
 		return []*models.{{$entity}}{&entity}, nil
 	}
@@ -75,7 +75,7 @@ func (c *Client) Get{{$entity}}ByID(ctx context.Context, id string, params Param
 	return fhirRespTo{{$entity}}(id, resp)
 }
 
-func (c *Client) Create{{$entity}}(ctx context.Context, resource string, params Parameters, entity *models.{{$entity}}) (*models.{{$entity}}, error) {
+func (c *Client) Create{{$entity}}(ctx context.Context, params Parameters, entity *models.{{$entity}}) (*models.{{$entity}}, error) {
 	resp, err := c.Create(ctx, "{{$entity}}", params, entity)
 	if err != nil {
 		return nil, err
@@ -84,7 +84,7 @@ func (c *Client) Create{{$entity}}(ctx context.Context, resource string, params 
 	return fhirRespTo{{$entity}}(StrPtrToStr(entity.ID), resp)
 }
 
-func (c *Client) Update{{$entity}}(ctx context.Context, resource string, params Parameters, entity *models.{{$entity}}) (*models.{{$entity}}, error) {
+func (c *Client) Update{{$entity}}(ctx context.Context, params Parameters, entity *models.{{$entity}}) (*models.{{$entity}}, error) {
 	resp, err := c.Update(ctx, "{{$entity}}", params, entity)
 	if err != nil {
 		return nil, err
@@ -93,7 +93,7 @@ func (c *Client) Update{{$entity}}(ctx context.Context, resource string, params 
 	return fhirRespTo{{$entity}}(StrPtrToStr(entity.ID), resp)
 }
 
-func (c *Client) Update{{$entity}}ByID(ctx context.Context, resource, id string, params Parameters, entity *models.{{$entity}}) (*models.{{$entity}}, error) {
+func (c *Client) Update{{$entity}}ByID(ctx context.Context, id string, params Parameters, entity *models.{{$entity}}) (*models.{{$entity}}, error) {
 	resp, err := c.UpdateByID(ctx, "{{$entity}}", id, params, entity)
 	if err != nil {
 		return nil, err
@@ -102,7 +102,7 @@ func (c *Client) Update{{$entity}}ByID(ctx context.Context, resource, id string,
 	return fhirRespTo{{$entity}}(id, resp)
 }
 
-func (c *Client) Patch{{$entity}}(ctx context.Context, resource string, params Parameters, entity *models.{{$entity}}) ([]*models.{{$entity}}, error) {
+func (c *Client) Patch{{$entity}}(ctx context.Context, params Parameters, entity *models.{{$entity}}) ([]*models.{{$entity}}, error) {
 	resp, err := c.Patch(ctx, "{{$entity}}", params, entity)
 	if err != nil {
 		return nil, err
@@ -111,7 +111,7 @@ func (c *Client) Patch{{$entity}}(ctx context.Context, resource string, params P
 	return fhirRespTo{{$entity}}s(resp)
 }
 
-func (c *Client) Patch{{$entity}}ByID(ctx context.Context, resource, id string, params Parameters, entity *models.{{$entity}}) (*models.{{$entity}}, error) {
+func (c *Client) Patch{{$entity}}ByID(ctx context.Context, id string, params Parameters, entity *models.{{$entity}}) (*models.{{$entity}}, error) {
 	resp, err := c.PatchByID(ctx, "{{$entity}}", id, params, entity)
 	if err != nil {
 		return nil, err
@@ -120,7 +120,7 @@ func (c *Client) Patch{{$entity}}ByID(ctx context.Context, resource, id string, 
 	return fhirRespTo{{$entity}}(id, resp)
 }
 
-func (c *Client) Delete{{$entity}}(ctx context.Context, resource string, params Parameters) ([]*models.{{$entity}}, error) {
+func (c *Client) Delete{{$entity}}(ctx context.Context, params Parameters) ([]*models.{{$entity}}, error) {
 	resp, err := c.Delete(ctx, "{{$entity}}", params)
 	if err != nil {
 		return nil, err
@@ -129,7 +129,7 @@ func (c *Client) Delete{{$entity}}(ctx context.Context, resource string, params 
 	return fhirRespTo{{$entity}}s(resp)
 }
 
-func (c *Client) Delete{{$entity}}ByID(ctx context.Context, resource, id string, params Parameters) (*models.{{$entity}}, error) {
+func (c *Client) Delete{{$entity}}ByID(ctx context.Context, id string, params Parameters) (*models.{{$entity}}, error) {
 	resp, err := c.DeleteByID(ctx, "{{$entity}}", id, params)
 	if err != nil {
 		return nil, err
