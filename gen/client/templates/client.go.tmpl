@@ -1,27 +1,22 @@
 package fhir
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
-	"io"
-	"net/http"
-	"net/url"
-	"strings"
 
 	"github.com/gotidy/fhir-client/models"
 )
 
-{{range .Entities}}
+{{- range $entity := .Entities}}
+{{- if ne $entity "Bundle"}}
 // ---------------------------------------------------------------------------------------------------------------------------
-// {{.Name}}
+// {{$entity}}
 // ---------------------------------------------------------------------------------------------------------------------------
 
-func bundleTo{{.Name}}s(bundle *models.Bundle) ([]*models.{{.Name}}, error) {
-	var entities []*models.{{.Name}}
-	err := EnumBundleResources(bundle, "{{.Name}}", func(resource ResourceData) error {
-		var entity models.{{.Name}}
+func bundleTo{{$entity}}s(bundle *models.Bundle) ([]*models.{{$entity}}, error) {
+	var entities []*models.{{$entity}}
+	err := EnumBundleResources(bundle, "{{$entity}}", func(resource ResourceData) error {
+		var entity models.{{$entity}}
 		if err := resource.UnmarshalTo(&entity); err != nil {
 			return err
 		}
@@ -35,112 +30,113 @@ func bundleTo{{.Name}}s(bundle *models.Bundle) ([]*models.{{.Name}}, error) {
 	return entities, nil
 }
 
-func fhirRespTo{{.Name}}s(resp *FhirResponse) ([]*models.{{.Name}}, error) {
+func fhirRespTo{{$entity}}s(resp *FhirResponse) ([]*models.{{$entity}}, error) {
 	switch resp.ResourceType {
 	case "Bundle":
-		return bundleTo{{.Name}}s(resp.Bundle)
-	case "{{.Name}}":
-		var entity models.{{.Name}}
+		return bundleTo{{$entity}}s(resp.Bundle)
+	case "{{$entity}}":
+		var entity models.{{$entity}}
 		if err := json.Unmarshal(resp.Body, &entity); err != nil {
 			return nil, err
 		}
-		return []*models.{{.Name}}{&entity}, nil
+		return []*models.{{$entity}}{&entity}, nil
 	}
 	return nil, nil
 }
 
-func fhirRespTo{{.Name}}(id string, resp *FhirResponse) (*models.{{.Name}}, error) {
-	entities, err := fhirRespTo{{.Name}}s(resp)
+func fhirRespTo{{$entity}}(id string, resp *FhirResponse) (*models.{{$entity}}, error) {
+	entities, err := fhirRespTo{{$entity}}s(resp)
 	if err != nil {
 		return nil, err
 	}
-	if err := checkSingular(id, "{{.Name}}", len(entities)); err != nil {
+	if err := checkSingular(id, "{{$entity}}", len(entities)); err != nil {
 		return nil, err
 	}
 	return entities[0], nil
 }
 
-// Get {{.Name}}.
-func (c *Client) Get{{.Name}}(ctx context.Context, params Parameters) ([]*models.{{.Name}}, error) {
-	resp, err := c.Get(ctx, "{{.Name}}", params)
+// Get {{$entity}}.
+func (c *Client) Get{{$entity}}(ctx context.Context, params Parameters) ([]*models.{{$entity}}, error) {
+	resp, err := c.Get(ctx, "{{$entity}}", params)
 	if err != nil {
 		return nil, err
 	}
 
-	return fhirRespTo{{.Name}}s(resp)
+	return fhirRespTo{{$entity}}s(resp)
 }
 
-// Get {{.Name}} by ID.
-func (c *Client) Get{{.Name}}ByID(ctx context.Context, id string, params Parameters) (*models.{{.Name}}, error) {
-	resp, err := c.GetByID(ctx, "{{.Name}}", id, params)
+// Get {{$entity}} by ID.
+func (c *Client) Get{{$entity}}ByID(ctx context.Context, id string, params Parameters) (*models.{{$entity}}, error) {
+	resp, err := c.GetByID(ctx, "{{$entity}}", id, params)
 	if err != nil {
 		return nil, err
 	}
 
-	return fhirRespTo{{.Name}}(id, resp)
+	return fhirRespTo{{$entity}}(id, resp)
 }
 
-func (c *Client) Create{{.Name}}(ctx context.Context, resource string, params Parameters, entity *models.{{.Name}}) (*models.{{.Name}}, error) {
-	resp, err := c.Create(ctx, "{{.Name}}", params, entity)
+func (c *Client) Create{{$entity}}(ctx context.Context, resource string, params Parameters, entity *models.{{$entity}}) (*models.{{$entity}}, error) {
+	resp, err := c.Create(ctx, "{{$entity}}", params, entity)
 	if err != nil {
 		return nil, err
 	}
 
-	return fhirRespTo{{.Name}}(StrPtrToStr(entity.ID), resp)
+	return fhirRespTo{{$entity}}(StrPtrToStr(entity.ID), resp)
 }
 
-func (c *Client) Update{{.Name}}(ctx context.Context, resource string, params Parameters, entity *models.{{.Name}}) (*models.{{.Name}}, error) {
-	resp, err := c.Update(ctx, "{{.Name}}", params, entity)
+func (c *Client) Update{{$entity}}(ctx context.Context, resource string, params Parameters, entity *models.{{$entity}}) (*models.{{$entity}}, error) {
+	resp, err := c.Update(ctx, "{{$entity}}", params, entity)
 	if err != nil {
 		return nil, err
 	}
 
-	return fhirRespTo{{.Name}}(StrPtrToStr(entity.ID), resp)
+	return fhirRespTo{{$entity}}(StrPtrToStr(entity.ID), resp)
 }
 
-func (c *Client) Update{{.Name}}ByID(ctx context.Context, resource, id string, params Parameters, entity *models.{{.Name}}) (*models.{{.Name}}, error) {
-	resp, err := c.UpdateByID(ctx, "{{.Name}}", id, params, entity)
+func (c *Client) Update{{$entity}}ByID(ctx context.Context, resource, id string, params Parameters, entity *models.{{$entity}}) (*models.{{$entity}}, error) {
+	resp, err := c.UpdateByID(ctx, "{{$entity}}", id, params, entity)
 	if err != nil {
 		return nil, err
 	}
 
-	return fhirRespTo{{.Name}}(id, resp)
+	return fhirRespTo{{$entity}}(id, resp)
 }
 
-func (c *Client) Patch{{.Name}}(ctx context.Context, resource string, params Parameters, entity *models.{{.Name}}) ([]*models.{{.Name}}, error) {
-	resp, err := c.Patch(ctx, "{{.Name}}", params, entity)
+func (c *Client) Patch{{$entity}}(ctx context.Context, resource string, params Parameters, entity *models.{{$entity}}) ([]*models.{{$entity}}, error) {
+	resp, err := c.Patch(ctx, "{{$entity}}", params, entity)
 	if err != nil {
 		return nil, err
 	}
 
-	return fhirRespTo{{.Name}}s(resp)
+	return fhirRespTo{{$entity}}s(resp)
 }
 
-func (c *Client) Patch{{.Name}}ByID(ctx context.Context, resource, id string, params Parameters, entity *models.{{.Name}}) (*models.{{.Name}}, error) {
-	resp, err := c.PatchByID(ctx, "{{.Name}}", id, params, entity)
+func (c *Client) Patch{{$entity}}ByID(ctx context.Context, resource, id string, params Parameters, entity *models.{{$entity}}) (*models.{{$entity}}, error) {
+	resp, err := c.PatchByID(ctx, "{{$entity}}", id, params, entity)
 	if err != nil {
 		return nil, err
 	}
 
-	return fhirRespTo{{.Name}}(id, resp)
+	return fhirRespTo{{$entity}}(id, resp)
 }
 
-func (c *Client) Delete{{.Name}}(ctx context.Context, resource string, params Parameters) ([]*models.{{.Name}}, error) {
-	resp, err := c.Delete(ctx, "{{.Name}}", params)
+func (c *Client) Delete{{$entity}}(ctx context.Context, resource string, params Parameters) ([]*models.{{$entity}}, error) {
+	resp, err := c.Delete(ctx, "{{$entity}}", params)
 	if err != nil {
 		return nil, err
 	}
 
-	return fhirRespTo{{.Name}}s(resp)
+	return fhirRespTo{{$entity}}s(resp)
 }
 
-func (c *Client) Delete{{.Name}}ByID(ctx context.Context, resource, id string, params Parameters) (*models.{{.Name}}, error) {
-	resp, err := c.DeleteByID(ctx, "{{.Name}}", id, params)
+func (c *Client) Delete{{$entity}}ByID(ctx context.Context, resource, id string, params Parameters) (*models.{{$entity}}, error) {
+	resp, err := c.DeleteByID(ctx, "{{$entity}}", id, params)
 	if err != nil {
 		return nil, err
 	}
 
-	return fhirRespTo{{.Name}}(id, resp)
+	return fhirRespTo{{$entity}}(id, resp)
 }
 
-{{end}}
+{{- end}}
+{{- end}}

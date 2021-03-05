@@ -47,7 +47,7 @@ func NewFhirResponse(resp *http.Response) (*FhirResponse, error) {
 		return nil, err
 	}
 
-	if contentType := resp.Header.Get("Content-Type"); strings.Contains(contentType, "json") {
+	if contentType := resp.Header.Get("Content-Type"); !strings.Contains(contentType, "json") {
 		return nil, NewResponseError(resp, fmt.Sprintf("Content-Type is \"%s\" but expected \"application/json\"", contentType))
 	}
 

@@ -47,9 +47,10 @@ gen-models:
 	rm -rf $(TMP)/*
 
 gen-client: 
-	go run ./gen/client/. -o ./client
+	go run ./gen/client/. -o ./
+	$(MAKE) fmt
 
-gen: ge-gen ge-models gen-client
+gen: ge-gen ge-models gen-client fmt
 
 test: mod gen
 	go test ./...	

@@ -24,5 +24,7 @@ func main() {
 	if wd, err := os.Getwd(); err == nil {
 		fmt.Println("Current dir: " + wd)
 	}
-	NewGenerator(ParseFlags()).Run()
+	if err := NewGenerator(ParseFlags()).Run(); err != nil {
+		fmt.Println("Error:", err)
+	}
 }

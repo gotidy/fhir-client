@@ -98,7 +98,7 @@ func (c *Client) applyEditors(ctx context.Context, req *http.Request, additional
 }
 
 func (c *Client) DoRequest(ctx context.Context, req *http.Request) (*FhirResponse, error) {
-	if err := c.applyEditors(ctx, req, c.RequestEditors); err != nil {
+	if err := c.applyEditors(ctx, req, nil); err != nil {
 		return nil, err
 	}
 	resp, err := c.Client.Do(req)

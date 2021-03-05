@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"os"
 	"path/filepath"
 	"text/template"
@@ -37,7 +38,7 @@ func (g *Generator) Run() error {
 		return err
 	}
 
-	tmpl = template.Must(template.New("client").Parse(typesTemplate))
+	tmpl = template.Must(template.New("types").Parse(typesTemplate))
 
 	file, err = os.Create(filepath.Join(g.config.Output, "types.gen.go"))
 	if err != nil {
