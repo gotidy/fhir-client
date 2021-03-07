@@ -512,9 +512,9 @@ func typeCodeToTypeIdentifier(typeCode string) string {
 	case "code":
 		return "string"
 	case "date":
-		return "string"
+		return "DateTime" // "string"
 	case "dateTime":
-		return "string"
+		return "DateTime" // "string"
 	case "decimal":
 		return "string"
 	case "id":
@@ -532,7 +532,7 @@ func typeCodeToTypeIdentifier(typeCode string) string {
 	case "string":
 		return "string"
 	case "time":
-		return "string"
+		return "Time" // "string"
 	case "unsignedInt":
 		return "int"
 	case "uri":

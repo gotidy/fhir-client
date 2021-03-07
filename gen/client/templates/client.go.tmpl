@@ -7,6 +7,36 @@ import (
 	"github.com/gotidy/fhir-client/models"
 )
 
+type ClientInterface interface {
+	DoRequest(ctx context.Context, req *http.Request) (*FhirResponse, error)
+	RequestWithBodyReader(ctx context.Context, method string, path string, params Parameters, body io.Reader) (*FhirResponse, error)
+	RequestWithBody(ctx context.Context, method string, path string, params Parameters, body interface{}) (*FhirResponse, error)
+	Request(ctx context.Context, method string, path string, params Parameters) (*FhirResponse, error)
+	Get(ctx context.Context, resource ResourceType, params Parameters) (*FhirResponse, error)
+	GetByID(ctx context.Context, resource ResourceType, id string, params Parameters) (*FhirResponse, error)
+	Create(ctx context.Context, resource ResourceType, params Parameters, body interface{}) (*FhirResponse, error)
+	Update(ctx context.Context, resource ResourceType, params Parameters, body interface{}) (*FhirResponse, error)
+	UpdateByID(ctx context.Context, resource ResourceType, id string, params Parameters, body interface{}) (*FhirResponse, error)
+	Patch(ctx context.Context, resource ResourceType, params Parameters, body interface{}) (*FhirResponse, error)
+	PatchByID(ctx context.Context, resource ResourceType, id string, params Parameters, body interface{}) (*FhirResponse, error)
+
+	{{- range $entity := .Entities}}
+	{{- if ne $entity "Bundle"}}
+	Get{{$entity}}(ctx context.Context, params Parameters) ([]*models.{{$entity}}, error)
+	Get{{$entity}}ByID(ctx context.Context, id string, params Parameters) (*models.{{$entity}}, error)
+	Create{{$entity}}(ctx context.Context, params Parameters, entity *models.{{$entity}}) (*models.{{$entity}}, error)
+	Update{{$entity}}(ctx context.Context, params Parameters, entity *models.{{$entity}}) (*models.{{$entity}}, error)
+	Update{{$entity}}ByID(ctx context.Context, id string, params Parameters, entity *models.{{$entity}}) (*models.{{$entity}}, error)
+	Patch{{$entity}}(ctx context.Context, params Parameters, entity *models.{{$entity}}) ([]*models.{{$entity}}, error)
+	Patch{{$entity}}ByID(ctx context.Context, id string, params Parameters, entity *models.{{$entity}}) (*models.{{$entity}}, error)
+	Delete{{$entity}}(ctx context.Context, params Parameters) ([]*models.{{$entity}}, error)
+	Delete{{$entity}}ByID(ctx context.Context, id string, params Parameters) (*models.{{$entity}}, error)
+	{{- end}}
+	{{- end}}	
+}
+
+var _ ClientInterface = (*Client)(nil)
+
 {{- range $entity := .Entities}}
 {{- if ne $entity "Bundle"}}
 // ---------------------------------------------------------------------------------------------------------------------------
