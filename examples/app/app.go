@@ -80,7 +80,7 @@ func (a *Application) Run(ctx context.Context) error {
 
 	// Update
 	fmt.Println("### UpdatePatient ###")
-	john.BirthDate = ptr.String("1987-01-12")
+	john.BirthDate = models.NewDate(1987, 1, 12)
 	patient, err = a.client.UpdatePatientByID(ctx, *(john.ID), nil, john)
 	if err != nil {
 		if e, ok := fhir.AsUnmarshalError(err); ok {
@@ -107,7 +107,7 @@ func (a *Application) Run(ctx context.Context) error {
 
 	// PatchPatientByID
 	fmt.Println("### PatchPatientByID ###")
-	john.BirthDate = ptr.String("1980-08-10")
+	john.BirthDate = models.NewDate(1980, 8, 10)
 	patient, err = a.client.PatchPatientByID(ctx, *(john.ID), nil, john)
 	if err != nil {
 		return err
@@ -127,7 +127,7 @@ func (a *Application) Run(ctx context.Context) error {
 
 	// DeletePatient John
 	fmt.Println("### DeletePatient ###")
-	john.BirthDate = ptr.String("1980-04-30")
+	john.BirthDate = models.NewDate(1980, 4, 30)
 	params = url.Values{}
 	params.Add("id", *(john.ID))
 	patients, err = a.client.DeletePatient(ctx, params)

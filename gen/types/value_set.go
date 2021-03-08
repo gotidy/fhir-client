@@ -6,10 +6,10 @@ import (
 	"strings"
 
 	"github.com/dave/jennifer/jen"
-	"github.com/gotidy/fhir-client/gen/types/fhir"
+	"github.com/gotidy/fhir-client/gen/types/models"
 )
 
-func (g *Generator) generateValueSet(resources ResourceMap, valueSet fhir.ValueSet) (*jen.File, error) {
+func (g *Generator) generateValueSet(resources ResourceMap, valueSet models.ValueSet) (*jen.File, error) {
 	if valueSet.Name == nil {
 		return nil, errors.New("ValueSet without name")
 	}
@@ -32,7 +32,7 @@ func (g *Generator) generateValueSet(resources ResourceMap, valueSet fhir.ValueS
 		return nil, fmt.Errorf("missing CodeSystem with canonical URL `%s` in ValueSet `%s`", url, *valueSet.Name)
 	}
 
-	codeSystem, err := fhir.UnmarshalCodeSystem(bytes)
+	codeSystem, err := models.UnmarshalCodeSystem(bytes)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (g *Generator) generateValueSet(resources ResourceMap, valueSet fhir.ValueS
 	g.setHeader(file)
 
 	// type
-	file.Commentf("%s is documented here %s", *valueSet.Name, *valueSet.Url)
+	file.Commentf("%s is documented here %s", *valueSet.Name, *valueSet.URL)
 	file.Type().Id(*valueSet.Name).Int()
 	file.Const().DefsFunc(constsRoot(*valueSet.Name, codeSystem.Concept))
 
@@ -118,7 +118,7 @@ func (g *Generator) generateValueSet(resources ResourceMap, valueSet fhir.ValueS
 	return file, nil
 }
 
-func canonical(include fhir.ValueSetComposeInclude) string {
+func canonical(include models.ValueSetComposeInclude) string {
 	if system := include.System; system != nil {
 		if version := include.Version; version != nil {
 			return *system + "|" + *version
@@ -128,7 +128,7 @@ func canonical(include fhir.ValueSetComposeInclude) string {
 	return ""
 }
 
-func constsRoot(valueSetName string, concepts []fhir.CodeSystemConcept) func(*jen.Group) {
+func constsRoot(valueSetName string, concepts []models.CodeSystemConcept) func(*jen.Group) {
 	return func(group *jen.Group) {
 		group.Id(codeIdentifier(valueSetName, concepts[0].Code)).Id(valueSetName).Op("=").Iota()
 		if len(concepts[0].Concept) > 0 {
@@ -138,7 +138,7 @@ func constsRoot(valueSetName string, concepts []fhir.CodeSystemConcept) func(*je
 	}
 }
 
-func consts(valueSetName string, concepts []fhir.CodeSystemConcept) func(*jen.Group) {
+func consts(valueSetName string, concepts []models.CodeSystemConcept) func(*jen.Group) {
 	return func(group *jen.Group) {
 		for _, concept := range concepts {
 			group.Id(codeIdentifier(valueSetName, concept.Code))
@@ -168,7 +168,7 @@ func codeIdentifier(valueSetName, s string) string {
 	}
 }
 
-func unmarshalRoot(valueSetName string, concepts []fhir.CodeSystemConcept) func(group *jen.Group) {
+func unmarshalRoot(valueSetName string, concepts []models.CodeSystemConcept) func(group *jen.Group) {
 	return func(group *jen.Group) {
 		unmarshal(valueSetName, concepts)(group)
 		group.Default().Block(
@@ -177,7 +177,7 @@ func unmarshalRoot(valueSetName string, concepts []fhir.CodeSystemConcept) func(
 	}
 }
 
-func unmarshal(valueSetName string, concepts []fhir.CodeSystemConcept) func(group *jen.Group) {
+func unmarshal(valueSetName string, concepts []models.CodeSystemConcept) func(group *jen.Group) {
 	return func(group *jen.Group) {
 		for _, concept := range concepts {
 			group.Case(jen.Lit(concept.Code)).Block(jen.Op("*").Id("code").Op("=").Id(codeIdentifier(valueSetName, concept.Code)))
@@ -188,7 +188,7 @@ func unmarshal(valueSetName string, concepts []fhir.CodeSystemConcept) func(grou
 	}
 }
 
-func codes(valueSetName string, concepts []fhir.CodeSystemConcept) func(group *jen.Group) {
+func codes(valueSetName string, concepts []models.CodeSystemConcept) func(group *jen.Group) {
 	return func(group *jen.Group) {
 		for _, concept := range concepts {
 			group.Case(jen.Id(codeIdentifier(valueSetName, concept.Code))).Block(jen.Return(jen.Lit(concept.Code)))
@@ -199,7 +199,7 @@ func codes(valueSetName string, concepts []fhir.CodeSystemConcept) func(group *j
 	}
 }
 
-func displays(valueSetName string, concepts []fhir.CodeSystemConcept) func(group *jen.Group) {
+func displays(valueSetName string, concepts []models.CodeSystemConcept) func(group *jen.Group) {
 	return func(group *jen.Group) {
 		for _, concept := range concepts {
 			if concept.Display != nil {
@@ -212,7 +212,7 @@ func displays(valueSetName string, concepts []fhir.CodeSystemConcept) func(group
 	}
 }
 
-func definitions(valueSetName string, concepts []fhir.CodeSystemConcept) func(group *jen.Group) {
+func definitions(valueSetName string, concepts []models.CodeSystemConcept) func(group *jen.Group) {
 	return func(group *jen.Group) {
 		for _, concept := range concepts {
 			if concept.Definition != nil {

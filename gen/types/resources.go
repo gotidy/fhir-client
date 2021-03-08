@@ -22,17 +22,17 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
-	. "strings"
+	"strings"
 	"time"
 	"unicode"
 
 	"github.com/dave/jennifer/jen"
-	"github.com/gotidy/fhir-client/gen/types/fhir"
+	"github.com/gotidy/fhir-client/gen/types/models"
 )
 
 type Resource struct {
 	ResourceType string
-	Url          *string
+	URL          *string
 	Version      *string
 	Name         *string
 }
@@ -49,7 +49,7 @@ func UnmarshalResource(b []byte) (Resource, error) {
 
 type ResourceMap = map[string]map[string][]byte
 
-var licenseComment = Split(Trim(`
+var licenseComment = strings.Split(strings.Trim(`
 Copyright 2021 
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -94,7 +94,7 @@ func (g *Generator) Run() {
 		if info.IsDir() {
 			return nil
 		}
-		if !HasSuffix(info.Name(), ".json") {
+		if !strings.HasSuffix(info.Name(), ".json") {
 			return nil
 		}
 		bytes, err := ioutil.ReadFile(path)
@@ -107,7 +107,7 @@ func (g *Generator) Run() {
 			return err
 		}
 		if resource.ResourceType == "Bundle" {
-			bundle, err := fhir.UnmarshalBundle(bytes)
+			bundle, err := models.UnmarshalBundle(bytes)
 			if err != nil {
 				return err
 			}
@@ -124,12 +124,12 @@ func (g *Generator) Run() {
 				case "ValueSet":
 					fallthrough
 				case "CodeSystem":
-					if entryResource.Url != nil {
+					if entryResource.URL != nil {
 						if entryResource.Version != nil {
-							resources[entryResource.ResourceType][*entryResource.Url+"|"+*entryResource.Version] = entry.Resource
-							resources[entryResource.ResourceType][*entryResource.Url] = entry.Resource
+							resources[entryResource.ResourceType][*entryResource.URL+"|"+*entryResource.Version] = entry.Resource
+							resources[entryResource.ResourceType][*entryResource.URL] = entry.Resource
 						} else {
-							resources[entryResource.ResourceType][*entryResource.Url] = entry.Resource
+							resources[entryResource.ResourceType][*entryResource.URL] = entry.Resource
 						}
 					}
 				}
@@ -143,12 +143,12 @@ func (g *Generator) Run() {
 		case "ValueSet":
 			fallthrough
 		case "CodeSystem":
-			if resource.Url != nil {
+			if resource.URL != nil {
 				if resource.Version != nil {
-					resources[resource.ResourceType][*resource.Url+"|"+*resource.Version] = bytes
-					resources[resource.ResourceType][*resource.Url] = bytes
+					resources[resource.ResourceType][*resource.URL+"|"+*resource.Version] = bytes
+					resources[resource.ResourceType][*resource.URL] = bytes
 				} else {
-					resources[resource.ResourceType][*resource.Url] = bytes
+					resources[resource.ResourceType][*resource.URL] = bytes
 				}
 			}
 		}
@@ -164,12 +164,12 @@ func (g *Generator) Run() {
 	requiredValueSetBindings := make(map[string]bool, 0)
 
 	for _, bytes := range resources["StructureDefinition"] {
-		structureDefinition, err := fhir.UnmarshalStructureDefinition(bytes)
+		structureDefinition, err := models.UnmarshalStructureDefinition(bytes)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		if (structureDefinition.Kind == fhir.StructureDefinitionKindResource) &&
+		if (structureDefinition.Kind == models.StructureDefinitionKindResource) &&
 			structureDefinition.Name != "Element" &&
 			structureDefinition.Name != "BackboneElement" {
 			g.addDefinition(structureDefinition.Name)
@@ -199,7 +199,7 @@ func (g *Generator) Run() {
 			fmt.Printf("Missing ValueSet `%s`.\n", url)
 			os.Exit(1)
 		}
-		valueSet, err := fhir.UnmarshalValueSet(bytes)
+		valueSet, err := models.UnmarshalValueSet(bytes)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -257,7 +257,7 @@ func (g *Generator) generateDefinitionsList() {
 }
 
 func FirstLower(s string) string {
-	return ToLower(s[:1]) + s[1:]
+	return strings.ToLower(s[:1]) + s[1:]
 }
 
 func (g *Generator) generateTypes(resources ResourceMap, alreadyGeneratedTypes map[string]bool, types map[string]bool, requiredValueSetBindings map[string]bool) error {
@@ -267,7 +267,7 @@ func (g *Generator) generateTypes(resources ResourceMap, alreadyGeneratedTypes m
 		if bytes == nil {
 			return fmt.Errorf("missing StructureDefinition with name `%s`", name)
 		}
-		structureDefinition, err := fhir.UnmarshalStructureDefinition(bytes)
+		structureDefinition, err := models.UnmarshalStructureDefinition(bytes)
 		if err != nil {
 			return err
 		}
@@ -290,7 +290,7 @@ func (g *Generator) generateTypes(resources ResourceMap, alreadyGeneratedTypes m
 	return nil
 }
 
-func (g *Generator) generateResourceOrType(resources ResourceMap, requiredTypes map[string]bool, requiredValueSetBindings map[string]bool, definition fhir.StructureDefinition) (*jen.File, error) {
+func (g *Generator) generateResourceOrType(resources ResourceMap, requiredTypes map[string]bool, requiredValueSetBindings map[string]bool, definition models.StructureDefinition) (*jen.File, error) {
 	elementDefinitions := definition.Snapshot.Element
 	if len(elementDefinitions) == 0 {
 		return nil, fmt.Errorf("missing element definitions in structure definition `%s`", definition.Name)
@@ -301,7 +301,7 @@ func (g *Generator) generateResourceOrType(resources ResourceMap, requiredTypes 
 	g.setHeader(file)
 
 	// generate structs
-	file.Commentf("%s is documented here %s", definition.Name, definition.Url)
+	file.Commentf("%s is documented here %s", definition.Name, definition.URL)
 	var err error
 	file.Type().Id(definition.Name).StructFunc(func(rootStruct *jen.Group) {
 		_, err = g.appendFields(resources, requiredTypes, requiredValueSetBindings, file, rootStruct, definition.Name, elementDefinitions, 1, 1)
@@ -311,7 +311,7 @@ func (g *Generator) generateResourceOrType(resources ResourceMap, requiredTypes 
 	}
 
 	// generate marshal
-	if definition.Kind == fhir.StructureDefinitionKindResource {
+	if definition.Kind == models.StructureDefinitionKindResource {
 		file.Type().Id("Other" + definition.Name).Id(definition.Name)
 		file.Commentf("MarshalJSON marshals the given %s as JSON into a byte slice", definition.Name)
 		file.Func().Params(jen.Id("r").Id(definition.Name)).Id("MarshalJSON").Params().
@@ -327,7 +327,7 @@ func (g *Generator) generateResourceOrType(resources ResourceMap, requiredTypes 
 	}
 
 	// generate unmarshal
-	if definition.Kind == fhir.StructureDefinitionKindResource {
+	if definition.Kind == models.StructureDefinitionKindResource {
 		file.Commentf("Unmarshal%s unmarshals a %s.", definition.Name, definition.Name)
 		file.Func().Id("Unmarshal"+definition.Name).
 			Params(jen.Id("b").Op("[]").Byte()).
@@ -368,17 +368,14 @@ func (g *Generator) setHeader(file *jen.File) {
 	g.setGeneratorComment(file)
 }
 
-func (g *Generator) appendFields(resources ResourceMap, requiredTypes map[string]bool, requiredValueSetBindings map[string]bool, file *jen.File, fields *jen.Group, parentName string, elementDefinitions []fhir.ElementDefinition, start, level int) (int, error) {
+func (g *Generator) appendFields(resources ResourceMap, requiredTypes map[string]bool, requiredValueSetBindings map[string]bool, file *jen.File, fields *jen.Group, parentName string, elementDefinitions []models.ElementDefinition, start, level int) (int, error) {
 	//fmt.Printf("appendFields parentName=%s, start=%d, level=%d\n", parentName, start, level)
 	for i := start; i < len(elementDefinitions); i++ {
 		element := elementDefinitions[i]
-		pathParts := Split(element.Path, ".")
+		pathParts := strings.Split(element.Path, ".")
 		if len(pathParts) == level+1 {
 			// direct childs
-			name := Title(pathParts[level])
-			if name == "Id" {
-				name = "ID"
-			}
+			name := normalizeName(pathParts[level])
 
 			// support contained resources later
 			if name != "Contained" {
@@ -394,8 +391,8 @@ func (g *Generator) appendFields(resources ResourceMap, requiredTypes map[string
 						}
 
 						typeIdentifier := ""
-						for _, pathPart := range Split((*element.ContentReference)[1:], ".") {
-							typeIdentifier += Title(pathPart)
+						for _, pathPart := range strings.Split((*element.ContentReference)[1:], ".") {
+							typeIdentifier += strings.Title(pathPart)
 						}
 						statement.Id(typeIdentifier).Tag(map[string]string{"json": pathParts[level] + ",omitempty", "bson": pathParts[level] + ",omitempty"})
 					}
@@ -413,7 +410,7 @@ func (g *Generator) appendFields(resources ResourceMap, requiredTypes map[string
 
 						if url := g.requiredValueSetBinding(element); url != nil {
 							if bytes := resources["ValueSet"][*url]; bytes != nil {
-								valueSet, err := fhir.UnmarshalValueSet(bytes)
+								valueSet, err := models.UnmarshalValueSet(bytes)
 								if err != nil {
 									return 0, err
 								}
@@ -424,8 +421,8 @@ func (g *Generator) appendFields(resources ResourceMap, requiredTypes map[string
 									} else if len(valueSet.Compose.Include) > 1 {
 										fmt.Printf("Skip generating an enum for a ValueSet binding to `%s` because the ValueSet includes more than one CodeSystem.\n", *valueSet.Name)
 										statement.Id("string")
-									} else if codeSystemUrl := canonical(valueSet.Compose.Include[0]); resources["CodeSystem"][codeSystemUrl] == nil {
-										fmt.Printf("Skip generating an enum for a ValueSet binding to `%s` because the ValueSet includes the non-existing CodeSystem with canonical URL `%s`.\n", *valueSet.Name, codeSystemUrl)
+									} else if codeSystemURL := canonical(valueSet.Compose.Include[0]); resources["CodeSystem"][codeSystemURL] == nil {
+										fmt.Printf("Skip generating an enum for a ValueSet binding to `%s` because the ValueSet includes the non-existing CodeSystem with canonical URL `%s`.\n", *valueSet.Name, codeSystemURL)
 										statement.Id("string")
 									} else {
 										requiredValueSetBindings[*url] = true
@@ -451,7 +448,7 @@ func (g *Generator) appendFields(resources ResourceMap, requiredTypes map[string
 
 						var typeIdentifier string
 						if parentName == "Element" && name == "ID" ||
-							parentName == "Extension" && name == "Url" {
+							parentName == "Extension" && name == "URL" {
 							typeIdentifier = "string"
 						} else {
 							typeIdentifier = typeCodeToTypeIdentifier(element.Type[0].Code)
@@ -469,7 +466,7 @@ func (g *Generator) appendFields(resources ResourceMap, requiredTypes map[string
 							}
 							i--
 						} else {
-							if unicode.IsUpper(rune(typeIdentifier[0])) {
+							if unicode.IsUpper(rune(typeIdentifier[0])) && !isPredefinedType(typeIdentifier) {
 								requiredTypes[typeIdentifier] = true
 							}
 							statement.Id(typeIdentifier)
@@ -491,14 +488,31 @@ func (g *Generator) appendFields(resources ResourceMap, requiredTypes map[string
 	return 0, nil
 }
 
-func (g *Generator) requiredValueSetBinding(elementDefinition fhir.ElementDefinition) *string {
+func (g *Generator) requiredValueSetBinding(elementDefinition models.ElementDefinition) *string {
 	if elementDefinition.Binding != nil {
 		binding := *elementDefinition.Binding
-		if binding.Strength == fhir.BindingStrengthRequired {
+		if binding.Strength == models.BindingStrengthRequired {
 			return binding.ValueSet
 		}
 	}
 	return nil
+}
+
+var nameMapping = map[string]string{
+	"id":  "ID",
+	"url": "URL",
+	"uri": "URI",
+}
+
+func normalizeName(name string) string {
+	if name, ok := nameMapping[name]; ok {
+		return name
+	}
+	return strings.Title(name)
+}
+
+func isPredefinedType(t string) bool {
+	return t == "DateTime" || t == "Time" || t == "Decimal"
 }
 
 func typeCodeToTypeIdentifier(typeCode string) string {
@@ -516,7 +530,7 @@ func typeCodeToTypeIdentifier(typeCode string) string {
 	case "dateTime":
 		return "DateTime" // "string"
 	case "decimal":
-		return "string"
+		return "Decimal"
 	case "id":
 		return "string"
 	case "instant":
