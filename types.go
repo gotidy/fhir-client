@@ -13,6 +13,10 @@ import (
 
 type ResourceType string
 
+func (r ResourceType) String() string {
+	return string(r)
+}
+
 type ResourceData []byte
 
 func (r ResourceData) String() string {
