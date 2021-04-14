@@ -48,11 +48,11 @@ func NewFhirResponse(resp *http.Response) (*FhirResponse, error) {
 	fresp.Body, err = ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return nil, err
+		return fresp, err
 	}
 
 	if contentType := resp.Header.Get("Content-Type"); !strings.Contains(contentType, "json") {
-		return nil, NewResponseError(resp, fmt.Sprintf("Content-Type is \"%s\" but expected \"application/json\"", contentType))
+		return fresp, NewResponseError(resp, fmt.Sprintf("Content-Type is \"%s\" but expected \"application/json\"", contentType))
 	}
 
 	var message string
@@ -62,13 +62,13 @@ func NewFhirResponse(resp *http.Response) (*FhirResponse, error) {
 	case "Bundle":
 		var dest models.Bundle
 		if err := json.Unmarshal(fresp.Body, &dest); err != nil {
-			return nil, NewUnmarshalError("response parsing", fresp.ResourceType, fresp.Body, err)
+			return fresp, NewUnmarshalError("response parsing", fresp.ResourceType, fresp.Body, err)
 		}
 		fresp.Bundle = &dest
 	case "OperationOutcome":
 		var dest models.OperationOutcome
 		if err := json.Unmarshal(fresp.Body, &dest); err != nil {
-			return nil, NewUnmarshalError("response parsing", fresp.ResourceType, fresp.Body, err)
+			return fresp, NewUnmarshalError("response parsing", fresp.ResourceType, fresp.Body, err)
 		}
 		fresp.OperationOutcome = &dest
 	case "":
@@ -79,9 +79,9 @@ func NewFhirResponse(resp *http.Response) (*FhirResponse, error) {
 	case resp.StatusCode >= 200 && resp.StatusCode < 300:
 		return fresp, nil
 	case resp.StatusCode >= 400 && resp.StatusCode < 500:
-		return nil, NewFhirError(resp, fresp.OperationOutcome, message)
+		return fresp, NewFhirError(resp, fresp.OperationOutcome, message)
 	default:
-		return nil, NewResponseError(resp, fmt.Sprintf("unexpected respose status: %d %s", resp.StatusCode, http.StatusText(resp.StatusCode)))
+		return fresp, NewResponseError(resp, fmt.Sprintf("unexpected respose status: %d %s", resp.StatusCode, http.StatusText(resp.StatusCode)))
 	}
 }
 

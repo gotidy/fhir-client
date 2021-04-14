@@ -98,12 +98,17 @@ func NewNotFoundError(id, resource string) NotFoundError {
 }
 
 func (e NotFoundError) Error() string {
-	return fmt.Sprintf("resource \"%s\" with ID \"%s\"", e.Resource, e.ID)
+	return fmt.Sprintf("resource \"%s\" with ID \"%s\" not found", e.Resource, e.ID)
 }
 
-func IsNotFound(err error) bool {
+func IsNotFoundError(err error) bool {
 	var e NotFoundError
 	return errors.As(err, &e)
+}
+
+func AsNotFoundError(err error) (NotFoundError, bool) {
+	var e NotFoundError
+	return e, errors.As(err, &e)
 }
 
 func NewTooManyEntitiesError(id, resource string, count int) error {

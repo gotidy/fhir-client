@@ -27,8 +27,8 @@ func TestIsNotFound(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := IsNotFound(tt.args.err); got != tt.want {
-				t.Errorf("IsNotFound() = %v, want %v", got, tt.want)
+			if got := IsNotFoundError(tt.args.err); got != tt.want {
+				t.Errorf("IsNotFoundError() = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -161,7 +161,11 @@ func (c *Client) Get(ctx context.Context, resource ResourceType, params Paramete
 }
 
 func (c *Client) GetByID(ctx context.Context, resource ResourceType, id string, params Parameters) (*FhirResponse, error) {
-	return c.Request(ctx, http.MethodGet, Path(string(resource), id), params)
+	resp, err := c.Request(ctx, http.MethodGet, Path(string(resource), id), params)
+	if resp != nil && resp.StatusCode == 404 {
+		return resp, NewNotFoundError(id, string(resource))
+	}
+	return resp, err
 }
 
 func (c *Client) Create(ctx context.Context, resource ResourceType, params Parameters, body interface{}) (*FhirResponse, error) {
@@ -173,7 +177,11 @@ func (c *Client) Update(ctx context.Context, resource ResourceType, params Param
 }
 
 func (c *Client) UpdateByID(ctx context.Context, resource ResourceType, id string, params Parameters, body interface{}) (*FhirResponse, error) {
-	return c.RequestWithBody(ctx, http.MethodPut, Path(string(resource), id), params, body)
+	resp, err := c.RequestWithBody(ctx, http.MethodPut, Path(string(resource), id), params, body)
+	if resp != nil && resp.StatusCode == 404 {
+		return resp, NewNotFoundError(id, string(resource))
+	}
+	return resp, err
 }
 
 func (c *Client) Patch(ctx context.Context, resource ResourceType, params Parameters, body interface{}) (*FhirResponse, error) {
@@ -181,7 +189,11 @@ func (c *Client) Patch(ctx context.Context, resource ResourceType, params Parame
 }
 
 func (c *Client) PatchByID(ctx context.Context, resource ResourceType, id string, params Parameters, body interface{}) (*FhirResponse, error) {
-	return c.RequestWithBody(ctx, http.MethodPatch, Path(string(resource), id), params, body)
+	resp, err := c.RequestWithBody(ctx, http.MethodPatch, Path(string(resource), id), params, body)
+	if resp != nil && resp.StatusCode == 404 {
+		return resp, NewNotFoundError(id, string(resource))
+	}
+	return resp, err
 }
 
 func (c *Client) Delete(ctx context.Context, resource ResourceType, params Parameters) (*FhirResponse, error) {
@@ -189,5 +201,9 @@ func (c *Client) Delete(ctx context.Context, resource ResourceType, params Param
 }
 
 func (c *Client) DeleteByID(ctx context.Context, resource ResourceType, id string, params Parameters) (*FhirResponse, error) {
-	return c.Request(ctx, http.MethodDelete, Path(string(resource), id), params)
+	resp, err := c.Request(ctx, http.MethodDelete, Path(string(resource), id), params)
+	if resp != nil && resp.StatusCode == 404 {
+		return resp, NewNotFoundError(id, string(resource))
+	}
+	return resp, err
 }
